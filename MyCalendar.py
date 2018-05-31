@@ -9,11 +9,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import sys
+import time
+from PyQt5.QtCore import QDate
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(731, 462)
+        MainWindow.setFixedSize(MainWindow.width(), MainWindow.height())
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
@@ -25,13 +28,16 @@ class Ui_MainWindow(object):
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
         self.dateEdit = QtWidgets.QDateEdit(self.tab)
+        #self.dateEdit.setDate(Union='', QDate='', datetime_date='')
+        self.dateEdit.setDate(QDate.fromString(time.strftime('%Y-%m-%d', time.localtime()), 'yyyy-MM-dd'))
         self.dateEdit.setGeometry(QtCore.QRect(80, 60, 141, 31))
         self.dateEdit.setObjectName("dateEdit")
+        self.dateEdit.setCalendarPopup(True)
         #self.dateEdit.mouseDoubleClickEvent.connect(self.choose_date_on_calendar)
         self.calendarWidget = QtWidgets.QCalendarWidget(self.tab)
         self.calendarWidget.setGeometry(QtCore.QRect(80, 90, 248, 171))
         self.calendarWidget.setObjectName("calendarWidget")
-        #self.calendarWidget.hide()
+        self.calendarWidget.hide()
         self.calendarWidget.selectionChanged.connect(self.choose_date_on_calendar)
         self.pushButton = QtWidgets.QPushButton(self.tab)
         self.pushButton.setGeometry(QtCore.QRect(440, 232, 101, 31))
