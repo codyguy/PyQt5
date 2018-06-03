@@ -1,0 +1,139 @@
+工作线程与UI线程的分离
+
+首先先介绍QThread这个类，它是PyQt中用于实现多线程的类，以下代码展示如何使用。
+#_*_coding:utf-8_*_
+
+from PyQt5.QtCore import QThread,Qt,pyqtSignal
+from PyQt5.QtWidgets import QWidget,QLabel,QApplication
+import sys
+import time
+
+class MyWindow(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("demo")
+        self.resize(400,200)
+        self.lable =QLabel("这是一个标签",self)
+        self.lable.move(150,100)
+        self.sum = Sum()    #实例化Sum类
+        self.sum.start()    #开启线程
+        self.show()
+
+class Sum(QThread):
+    def __init__(self):
+        super().__init__()
+        self.m = 0
+
+    def run(self):
+        while self.m < 100:
+            self.m+=1
+            print(self.m)
+            time.sleep(1)
+if __name__ == '__main__':
+    app =QApplication(sys.argv)
+    win = MyWindow()
+    sys.exit(app.exec())
+
+从以上代码看来其实跟Python内置的threading并没有太大出入。
+
+用PyQt的信号来实现进程间通信 
+对以上代码稍作修改：
+
+#_*_coding:utf-8_*_
+
+from PyQt5.QtCore import QThread,Qt,pyqtSignal
+from PyQt5.QtWidgets import QWidget,QLabel,QApplication
+import sys
+import time
+class MyWindow(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("demo")
+        self.resize(400,200)
+        self.lable =QLabel("这是一个标签",self)
+        self.lable.move(150,100)
+        self.sum = Sum()    #实例化Sum类
+        self.sum.sinOut.connect(self.printNum)  #将信号连接至printNum函数
+        self.sum.start()    #开启线程
+        self.show()
+    def printNum(self,num):
+        print(num)
+
+class Sum(QThread):
+    sinOut = pyqtSignal(int)
+    def __init__(self):
+        super().__init__()
+        self.m = 0
+
+    def run(self):
+        while self.m < 100:
+            self.m+=1
+            self.sinOut.emit(self.m)    #反馈信号出去
+            time.sleep(1)
+
+if __name__ == '__main__':
+    app =QApplication(sys.argv)
+    win = MyWindow()
+    sys.exit(app.exec())
+
+以上代码同样实现了打印操作，不同的是这个通过信号反馈出去来连接UI和工作线程。
+
+连接两个线程
+
+#_*_coding:utf-8_*_
+
+from PyQt5.QtCore import QThread,Qt,pyqtSignal
+from PyQt5.QtWidgets import QWidget,QLabel,QApplication
+import sys
+import time
+
+class MyWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("demo")
+        self.resize(400,200)
+        self.lable =QLabel("这是一个标签",self)
+        self.lable.move(150,100)
+        self.num = Num()
+        self.sum = Sum()    #实例化Sum类
+        self.sum.sinOut.connect(self.num.setNum)  #将信号连接至printNum函数
+        self.num.start()
+        self.sum.start()    #开启线程
+        self.show()
+    def printNum(self,num):
+        print(num)
+
+class Sum(QThread):
+    sinOut = pyqtSignal(int)
+    def __init__(self):
+        super().__init__()
+        self.m = 0
+
+    def run(self):
+        while self.m < 100:
+            self.m+=1
+            self.sinOut.emit(self.m)    #反馈信号出去
+            time.sleep(1)
+
+class Num(QThread):
+    def __init__(self):
+        super().__init__()
+        self.Num = 0
+        self.flag = True
+
+    def setNum(self,state):
+        self.flag = state
+
+    def run(self):
+        while True:
+            if self.flag == True:
+                print(self.Num)
+            self.Num+=1
+            time.sleep(1)
+
+if __name__ == '__main__':
+    app =QApplication(sys.argv)
+    win = MyWindow()
+    sys.exit(app.exec())
