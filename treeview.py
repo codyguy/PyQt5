@@ -5,7 +5,12 @@
 # Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
-
+#
+#
+#https://blog.csdn.net/czyt1988/article/details/26018513
+#https://blog.csdn.net/emdfans/article/details/28232315
+#
+#
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDirModel
 import sys
